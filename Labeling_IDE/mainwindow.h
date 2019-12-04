@@ -28,6 +28,9 @@ private:
     // QPointF positions für rechts / linksklick hier erstellen
 
     bool eventFilter(QObject *target, QEvent *event);
+
+    QGraphicsEllipseItem * left_ellipse;
+    QPen left_ellipse_pen;
 };
 
 #endif // MAINWINDOW_H
