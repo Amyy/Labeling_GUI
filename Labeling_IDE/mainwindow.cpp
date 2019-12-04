@@ -1,10 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <iostream>
 
+using namespace std;
 
-MainWindow::MainWindow(QWidget *parent) :
+// namespace(hier==Klasse)::Funktion_aus_Namespace()
+MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow) // "ui = new Ui::MainWindow"
 {
 
     ui->setupUi(this);
@@ -17,6 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // install event filter
     graphics_scene->installEventFilter(this);
+    // install event filter for button
 
     ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
 
@@ -30,10 +34,22 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         if (target == graphics_scene && event->type() == QEvent::GraphicsSceneMousePress) {
 
             const QGraphicsSceneMouseEvent* const mouse_event = static_cast<const QGraphicsSceneMouseEvent*>(event);
-            const QPointF position = mouse_event->scenePos();
-            cout << position.x() << "," << position.y() << endl;
 
-    }
+            // Right Mousebutton was clicked:
+            if(mouse_event->button() == Qt::RightButton) {
+                const QPointF position = mouse_event->scenePos();
+                cout << "Right Mousebutton:" << position.x() << "," << position.y() << endl;
+            }
+
+            //Left Mousebutton was clicked:
+            if(mouse_event->button() == Qt::LeftButton) {
+                const QPointF pos_right_click = mouse_event->scenePos();
+                cout << "Left Mousebutton:" << pos_right_click.x() << "," << pos_right_click.y() << endl;
+            }
+
+        }
+
+
     return QMainWindow::eventFilter(target, event);
 }
 
