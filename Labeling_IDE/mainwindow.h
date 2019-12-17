@@ -31,6 +31,9 @@ private:
 
     QGraphicsEllipseItem * left_ellipse;
     QPen left_ellipse_pen;
+
+    QGraphicsEllipseItem * right_ellipse;
+    QPen right_ellipse_pen;
 };
 
 #endif // MAINWINDOW_H

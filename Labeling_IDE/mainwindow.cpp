@@ -8,7 +8,8 @@ using namespace std;
 MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     QMainWindow(parent),
     ui(new Ui::MainWindow), // "ui = new Ui::MainWindow"
-    left_ellipse(NULL)
+    left_ellipse(NULL),
+    right_ellipse(NULL)
 {
 
     ui->setupUi(this);
@@ -25,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     // ...
 
     left_ellipse_pen.setColor(QColor(255, 0, 0));
+    right_ellipse_pen.setColor(QColor(0, 255, 0));
 
     ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
 
@@ -54,8 +56,16 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
         //Left Mousebutton was clicked:
         if(mouse_event->button() == Qt::LeftButton) {
+
             const QPointF pos_right_click = mouse_event->scenePos();
             cout << "Left Mousebutton:" << pos_right_click.x() << "," << pos_right_click.y() << endl;
+
+            if(right_ellipse != NULL) {
+                graphics_scene->removeItem(right_ellipse);
+            }
+
+            // Draw circle on left-clicked position
+            right_ellipse = graphics_scene->addEllipse(pos_right_click.x() - 5, pos_right_click.y() - 5, 10, 10, right_ellipse_pen);
         }
     }
 
