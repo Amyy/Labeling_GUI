@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <iostream>
+#include <opencv2/opencv.hpp>
 
 using namespace std;
+using namespace cv;
 
 // namespace(hier==Klasse)::Funktion_aus_Namespace()
 MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
@@ -18,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     // add image to graphics_scene & show image in graphicsView widget
     graphics_scene = new QGraphicsScene(this);
     QGraphicsPixmapItem *item = new QGraphicsPixmapItem(QPixmap("/home/amelie/Uni/NCT_Arbeit/instrument.png"));
-    graphics_scene->addItem(item);
 
     // install event filter
     graphics_scene->installEventFilter(this);
@@ -30,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
     ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
 
-
+    graphics_scene->addItem(item);
 }
 
 // https://stackoverflow.com/questions/35039946/get-mouse-position-in-child-qgraphicsscene
