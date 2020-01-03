@@ -3,16 +3,14 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
-#include <QGraphicsView>
 #include <QGraphicsItem>
-#include <QGraphicsSceneMouseEvent>
 #include <opencv2/opencv.hpp>
 #include <QPushButton>
 #include <string>
 #include <vector>
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 struct InstrumentPair {
@@ -39,7 +37,9 @@ public slots:
     void loadLastFrame();
 
 private:
+    void loadVideo(std::string const &filename);
     void readCSV(std::string const &filename); // filename: reference to constant string
+    void saveCSV(std::string const &filename);
     bool eventFilter(QObject *target, QEvent *event);
     void setLeftInstrumentPos(int x, int y);
     void setRightInstrumentPos(int x, int y);
@@ -47,16 +47,13 @@ private:
     Ui::MainWindow *ui;
     QGraphicsScene *graphics_scene; // Membervariable
 
-    // QPointF positions für rechts / linksklick hier erstellen
-
-
-    QGraphicsEllipseItem * left_ellipse;
     QPen left_ellipse_pen;
-
-    QGraphicsEllipseItem * right_ellipse;
     QPen right_ellipse_pen;
 
-    QGraphicsPixmapItem * item;
+    QGraphicsEllipseItem * left_ellipse;
+    QGraphicsEllipseItem * right_ellipse;
+
+    QGraphicsPixmapItem * pixmap_item;
 
     cv::VideoCapture video;
     int current_framenr;

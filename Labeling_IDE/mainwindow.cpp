@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <fstream>
 #include <sstream>
+#include <QGraphicsSceneMouseEvent>
 
 using namespace cv;
 
@@ -11,23 +12,44 @@ using namespace cv;
 MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     QMainWindow(parent),
     ui(new Ui::MainWindow), // "ui = new Ui::MainWindow"
-    left_ellipse(NULL),
-    right_ellipse(NULL),
-    item(NULL),
+    left_ellipse(nullptr),
+    right_ellipse(nullptr),
+    pixmap_item(nullptr),
     current_framenr(0),
     num_frames(0)
-
 {
+    left_ellipse_pen.setColor(QColor(255, 0, 0));
+    right_ellipse_pen.setColor(QColor(0, 255, 0));
+
     ui->setupUi(this);
 
-
     graphics_scene = new QGraphicsScene(this);
-    item = new QGraphicsPixmapItem();
-    graphics_scene->addItem(item);
+    pixmap_item = new QGraphicsPixmapItem();
+    graphics_scene->addItem(pixmap_item);
 
-    // https://amin-ahmadi.com/2018/03/29/how-to-read-process-and-display-videos-using-qt-and-opencv/
-    video.open("/home/amelie/Uni/Arbeit/PegTransfer.avi");
+    // install event filter
+    graphics_scene->installEventFilter(this);
+    // install event filter for button
+    // ...
+
+    ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
+
+
+    loadVideo("/home/amelie/Uni/Arbeit/PegTransfer.avi");
     readCSV("/home/amelie/Uni/Arbeit/positions.csv");
+
+    loadNextFrame();
+}
+
+MainWindow::~MainWindow() // for every "new" add one "delete"
+{
+    delete ui;
+    delete graphics_scene;
+}
+
+void MainWindow::loadVideo(std::string const& filename) {
+    // https://amin-ahmadi.com/2018/03/29/how-to-read-process-and-display-videos-using-qt-and-opencv/
+    video.open(filename);
 
     if(!video.isOpened())
     {
@@ -40,23 +62,6 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
     num_frames = static_cast<int>(video.get(CAP_PROP_FRAME_COUNT));
     ui->frameSpinBox->setMaximum(num_frames-1); // maximum from spin box: begin count 0
-
-    // install event filter
-    graphics_scene->installEventFilter(this);
-    // install event filter for button
-    // ...
-
-    left_ellipse_pen.setColor(QColor(255, 0, 0));
-    right_ellipse_pen.setColor(QColor(0, 255, 0));
-
-    ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
-
-    loadNextFrame();
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 void MainWindow::loadNextFrame() {
@@ -68,7 +73,7 @@ void MainWindow::loadNextFrame() {
     if (!frame.empty())
     {
         QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-        item->setPixmap(QPixmap::fromImage(qimg.rgbSwapped()));
+        pixmap_item->setPixmap(QPixmap::fromImage(qimg.rgbSwapped()));
 
         InstrumentPair const &pair = instrumentPairs[current_framenr]; //InstrumentPair refers to element in vector
         setLeftInstrumentPos(pair.xLeft, pair.yLeft);
@@ -77,8 +82,10 @@ void MainWindow::loadNextFrame() {
 }
 
 void MainWindow::setFrame(int framenumber) {
-    video.set(CAP_PROP_POS_FRAMES, framenumber);
-    loadNextFrame();
+    if(framenumber != current_framenr) { // prevent 2x/double loadNextFrame trigger
+        video.set(CAP_PROP_POS_FRAMES, framenumber);
+        loadNextFrame();
+    }
 }
 
 void MainWindow::loadPreviousFrame() {
@@ -103,6 +110,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         if(mouse_event->button() == Qt::RightButton) {
             const QPointF position = mouse_event->scenePos();
             // std::cout << "Right Mousebutton:" << position.x() << "," << position.y() << std::endl;
+            InstrumentPair &pair = instrumentPairs[current_framenr];
+            pair.xRight = position.x();
+            pair.yRight = position.y();
             setRightInstrumentPos(position.x(), position.y());
         }
 
@@ -110,6 +120,9 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         if(mouse_event->button() == Qt::LeftButton) {
             QPointF const position = mouse_event->scenePos();
             // std::cout << "Left Mousebutton:" << position.x() << "," << position.y() << std::endl;
+            InstrumentPair &pair = instrumentPairs[current_framenr];
+            pair.xLeft = position.x();
+            pair.yLeft = position.y();
             setLeftInstrumentPos(position.x(), position.y());
         }
     }
@@ -118,23 +131,28 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 }
 
 void MainWindow::setLeftInstrumentPos(int x, int y) {
-    if(left_ellipse != NULL) {
+    if(left_ellipse != nullptr) {
         graphics_scene->removeItem(left_ellipse);
+        left_ellipse = nullptr;
     }
-
-    left_ellipse = graphics_scene->addEllipse(x - 5, y - 5, 10, 10, left_ellipse_pen);
+    if(x != -1 && y != -1) {
+        left_ellipse = graphics_scene->addEllipse(x - 5, y - 5, 10, 10, left_ellipse_pen);
+    }
 }
 
 void MainWindow::setRightInstrumentPos(int x, int y) {
-    if(right_ellipse != NULL) {
+    if(right_ellipse != nullptr) {
         graphics_scene->removeItem(right_ellipse);
+        right_ellipse = nullptr;
     }
 
-    right_ellipse = graphics_scene->addEllipse(x - 5, y - 5, 10, 10, right_ellipse_pen);
+    if(x != -1 && y != -1) {
+        right_ellipse = graphics_scene->addEllipse(x - 5, y - 5, 10, 10, right_ellipse_pen);
+    }
 }
 
 void MainWindow::readCSV(std::string const &filename) {
-    std::ifstream file(filename.c_str());
+    std::ifstream file(filename);
 
     instrumentPairs.clear(); // delete content of vector
 
@@ -152,5 +170,14 @@ void MainWindow::readCSV(std::string const &filename) {
         ss >> pair.yRight;
 
         instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
+    }
+}
+
+void MainWindow::saveCSV(std::string const &filename) {
+
+    std::ofstream file(filename, std::ios::trunc); // open new file with filename, overwrites old file! ("truncate")
+
+    for(auto const &pair : instrumentPairs){ // auto find type of pair, iterate over every element in instrumentPairs
+        file << pair.xLeft << ";" << pair.yLeft << ";" << pair.xRight << ";" << pair.yRight << "\n";
     }
 }
