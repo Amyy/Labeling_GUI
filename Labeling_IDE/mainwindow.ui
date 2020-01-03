@@ -27,14 +27,27 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>190</y>
+      <x>480</x>
+      <y>210</y>
       <width>121</width>
       <height>41</height>
      </rect>
     </property>
     <property name="text">
      <string>Save_Right_Click</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="nextFrameButton">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>50</y>
+      <width>91</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Next Frame</string>
     </property>
    </widget>
   </widget>
