@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <QMessageBox>
 
 using namespace std;
 using namespace cv;
@@ -12,14 +13,42 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     ui(new Ui::MainWindow), // "ui = new Ui::MainWindow"
     left_ellipse(NULL),
     right_ellipse(NULL)
+
 {
 
     ui->setupUi(this);
 
-
-    // add image to graphics_scene & show image in graphicsView widget
     graphics_scene = new QGraphicsScene(this);
-    QGraphicsPixmapItem *item = new QGraphicsPixmapItem(QPixmap("/home/amelie/Uni/NCT_Arbeit/instrument.png"));
+
+    //TODO: BeispielImage ersetzen durch wirkliche Frames
+    //QGraphicsPixmapItem *item = new QGraphicsPixmapItem(QPixmap("/home/amelie/Uni/NCT_Arbeit/instrument.png"));
+
+    VideoCapture video("/home/amelie/Uni/Arbeit/PegTransfer.avi");
+
+    if(!video.isOpened())
+    {
+        QMessageBox::critical(this,
+                              "Camera Error",
+                              "Make sure you entered a correct camera index,"
+                              "<br>or that the camera is not being accessed by another program!");
+        return;
+    }
+
+    Mat frame;
+
+    video >> frame;
+    if (!frame.empty())
+    {
+        QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+        //pixmap.setPixmap( QPixmap::fromImage(qimg.rgbSwapped()));
+
+        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(QPixmap::fromImage(qimg.rgbSwapped()));
+        graphics_scene->addItem(item);
+
+    }
+
+
+
 
     // install event filter
     graphics_scene->installEventFilter(this);
@@ -31,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
     ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
 
-    graphics_scene->addItem(item);
+
 }
 
 // https://stackoverflow.com/questions/35039946/get-mouse-position-in-child-qgraphicsscene

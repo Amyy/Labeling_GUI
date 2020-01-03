@@ -34,6 +34,8 @@ private:
 
     QGraphicsEllipseItem * right_ellipse;
     QPen right_ellipse_pen;
+
+    QPixmap pixmap;
 };
 
 #endif // MAINWINDOW_H
