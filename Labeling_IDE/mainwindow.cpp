@@ -13,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     left_ellipse(NULL),
     right_ellipse(NULL),
     item(NULL),
-    current_framenr(0)
+    current_framenr(0),
+    num_frames(0)
 
 {
     ui->setupUi(this);
@@ -35,6 +36,9 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
         return;
     }
 
+    num_frames = static_cast<int>(video.get(CAP_PROP_FRAME_COUNT));
+    ui->frameSpinBox->setMaximum(num_frames-1); // maximum from spin box: begin count 0
+
     // install event filter
     graphics_scene->installEventFilter(this);
     // install event filter for button
@@ -50,23 +54,34 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
 }
 
-bool MainWindow::loadNextFrame() {
+void MainWindow::loadNextFrame() {
     Mat frame;
-    current_framenr = video.get(CAP_PROP_POS_FRAMES);
+    current_framenr = static_cast<int>(video.get(CAP_PROP_POS_FRAMES));
+    ui->frameSpinBox->setValue(current_framenr);
 
     video >> frame;
     if (!frame.empty())
     {
         QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
         item->setPixmap(QPixmap::fromImage(qimg.rgbSwapped()));
-        return true;
     }
-    return false;
 }
 
-bool MainWindow::loadPreviousFrame() {
-    video.set(CAP_PROP_POS_FRAMES, current_framenr-1); // current_framenr == -1 doesn't matter lol
-    return loadNextFrame();
+void MainWindow::setFrame(int framenumber) {
+    video.set(CAP_PROP_POS_FRAMES, framenumber);
+    loadNextFrame();
+}
+
+void MainWindow::loadPreviousFrame() {
+    setFrame(current_framenr-1); // current_framenr == -1 doesn't matter lol
+}
+
+void MainWindow::loadFirstFrame() {
+    setFrame(0);
+}
+
+void MainWindow::loadLastFrame() {
+    setFrame(num_frames-1);
 }
 
 // https://stackoverflow.com/questions/35039946/get-mouse-position-in-child-qgraphicsscene

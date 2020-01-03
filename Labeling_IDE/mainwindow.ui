@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
-    <height>333</height>
+    <width>664</width>
+    <height>446</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,18 +17,18 @@
    <widget class="QGraphicsView" name="graphicsView">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>351</width>
-      <height>201</height>
+      <x>20</x>
+      <y>60</y>
+      <width>611</width>
+      <height>341</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>210</y>
+      <x>520</x>
+      <y>10</y>
       <width>121</width>
       <height>41</height>
      </rect>
@@ -40,27 +40,69 @@
    <widget class="QPushButton" name="nextFrameButton">
     <property name="geometry">
      <rect>
-      <x>500</x>
-      <y>50</y>
-      <width>91</width>
-      <height>41</height>
+      <x>200</x>
+      <y>10</y>
+      <width>31</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Next Frame</string>
+     <string>&gt;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="prevFrameButton">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>50</y>
-      <width>101</width>
-      <height>41</height>
+      <x>80</x>
+      <y>10</y>
+      <width>31</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Previous Frame</string>
+     <string>&lt;</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="frameSpinBox">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>10</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>999999999</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="firstFrameButton">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>10</y>
+      <width>41</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;&lt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="lastFrameButton">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>10</y>
+      <width>41</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&gt;&gt;</string>
     </property>
    </widget>
   </widget>
@@ -69,7 +111,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>624</width>
+     <width>664</width>
      <height>27</height>
     </rect>
    </property>
@@ -130,9 +172,60 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>frameSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>setFrame(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>415</x>
+     <y>63</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>166</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>firstFrameButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadFirstFrame()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>390</x>
+     <y>105</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>166</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lastFrameButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadLastFrame()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>590</x>
+     <y>105</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>166</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>loadNextFrame()</slot>
   <slot>loadPreviousFrame()</slot>
+  <slot>setFrame(int)</slot>
+  <slot>loadFirstFrame()</slot>
+  <slot>loadLastFrame()</slot>
  </slots>
 </ui>

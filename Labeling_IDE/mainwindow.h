@@ -24,8 +24,11 @@ public:
 
 // function is called by emitted signal by PushButton "nextFrameButton"
 public slots:
-    bool loadNextFrame();
-    bool loadPreviousFrame();
+    void setFrame(int framenumber);
+    void loadNextFrame();
+    void loadPreviousFrame();
+    void loadFirstFrame();
+    void loadLastFrame();
 
 private:
     Ui::MainWindow *ui;
@@ -48,7 +51,8 @@ private:
 
     cv::VideoCapture video;
 
-    double current_framenr;
+    int current_framenr;
+    int num_frames;
 
 };
 
