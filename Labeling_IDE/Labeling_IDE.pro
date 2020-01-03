@@ -30,3 +30,6 @@ LIBS += -lopencv_features2d
 LIBS += -lopencv_calib3d
 LIBS += -lopencv_objdetect
 LIBS += -lopencv_imgcodecs
+LIBS += -lopencv_objdetect
+LIBS += -lopencv_imgproc
+LIBS += -lopencv_videoio
