@@ -2,8 +2,9 @@
 #include "ui_mainwindow.h"
 #include <iostream>
 #include <QMessageBox>
+#include <fstream>
+#include <sstream>
 
-using namespace std;
 using namespace cv;
 
 // namespace(hier==Klasse)::Funktion_aus_Namespace()
@@ -26,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
     // https://amin-ahmadi.com/2018/03/29/how-to-read-process-and-display-videos-using-qt-and-opencv/
     video.open("/home/amelie/Uni/Arbeit/PegTransfer.avi");
+    readCSV("/home/amelie/Uni/Arbeit/positions.csv");
 
     if(!video.isOpened())
     {
@@ -50,8 +52,11 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
 
     loadNextFrame();
+}
 
-
+MainWindow::~MainWindow()
+{
+    delete ui;
 }
 
 void MainWindow::loadNextFrame() {
@@ -95,7 +100,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
 
             const QPointF position = mouse_event->scenePos();
-            cout << "Right Mousebutton:" << position.x() << "," << position.y() << endl;
+            std::cout << "Right Mousebutton:" << position.x() << "," << position.y() << std::endl;
 
             if(left_ellipse != NULL) {
                 graphics_scene->removeItem(left_ellipse);
@@ -108,8 +113,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
         //Left Mousebutton was clicked:
         if(mouse_event->button() == Qt::LeftButton) {
 
-            const QPointF pos_right_click = mouse_event->scenePos();
-            cout << "Left Mousebutton:" << pos_right_click.x() << "," << pos_right_click.y() << endl;
+            QPointF const pos_right_click = mouse_event->scenePos();
+            std::cout << "Left Mousebutton:" << pos_right_click.x() << "," << pos_right_click.y() << std::endl;
 
             if(right_ellipse != NULL) {
                 graphics_scene->removeItem(right_ellipse);
@@ -123,10 +128,24 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
     return QMainWindow::eventFilter(target, event);
 }
 
+void MainWindow::readCSV(std::string const &filename) {
+    std::ifstream file(filename.c_str());
 
+    instrumentPairs.clear(); // delete content of vector
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+    std::string line;
+    while(std::getline(file, line)) { // get line out of file -> write in variable line
+        InstrumentPair pair;
+
+        std::stringstream ss(line); // fill stringstream with content of line
+        ss >> pair.xLeft; // read line until non integer character (== ";") because xLeft == int
+        ss.ignore(1); // ignore next single/one character
+        ss >> pair.yLeft;
+        ss.ignore(1);
+        ss >> pair.xRight;
+        ss.ignore(1);
+        ss >> pair.yRight;
+
+        instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
+    }
 }
-

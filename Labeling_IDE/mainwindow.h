@@ -8,11 +8,19 @@
 #include <QGraphicsSceneMouseEvent>
 #include <opencv2/opencv.hpp>
 #include <QPushButton>
-
+#include <string>
+#include <vector>
 
 namespace Ui {
 class MainWindow;
 }
+
+struct InstrumentPair {
+    int xLeft;
+    int yLeft;
+    int xRight;
+    int yRight;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -34,9 +42,6 @@ private:
     Ui::MainWindow *ui;
     QGraphicsScene *graphics_scene; // Membervariable
 
-    // Button zum speichern
-    //QPushButton nextFrameButton;
-
     // QPointF positions für rechts / linksklick hier erstellen
 
     bool eventFilter(QObject *target, QEvent *event);
@@ -54,6 +59,8 @@ private:
     int current_framenr;
     int num_frames;
 
+    void readCSV(std::string const &filename); // filename: reference to constant string
+    std::vector<InstrumentPair> instrumentPairs; // besseres Array
 };
 
 #endif // MAINWINDOW_H
