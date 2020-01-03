@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <iostream>
-#include <opencv2/opencv.hpp>
 #include <QMessageBox>
 
 using namespace std;
@@ -12,18 +11,19 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     QMainWindow(parent),
     ui(new Ui::MainWindow), // "ui = new Ui::MainWindow"
     left_ellipse(NULL),
-    right_ellipse(NULL)
+    right_ellipse(NULL),
+    item(NULL)
 
 {
-
     ui->setupUi(this);
 
+
     graphics_scene = new QGraphicsScene(this);
+    item = new QGraphicsPixmapItem();
+    graphics_scene->addItem(item);
 
-    //TODO: BeispielImage ersetzen durch wirkliche Frames
-    //QGraphicsPixmapItem *item = new QGraphicsPixmapItem(QPixmap("/home/amelie/Uni/NCT_Arbeit/instrument.png"));
-
-    VideoCapture video("/home/amelie/Uni/Arbeit/PegTransfer.avi");
+    // https://amin-ahmadi.com/2018/03/29/how-to-read-process-and-display-videos-using-qt-and-opencv/
+    video.open("/home/amelie/Uni/Arbeit/PegTransfer.avi");
 
     if(!video.isOpened())
     {
@@ -33,22 +33,6 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
                               "<br>or that the camera is not being accessed by another program!");
         return;
     }
-
-    Mat frame;
-
-    video >> frame;
-    if (!frame.empty())
-    {
-        QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-        //pixmap.setPixmap( QPixmap::fromImage(qimg.rgbSwapped()));
-
-        QGraphicsPixmapItem *item = new QGraphicsPixmapItem(QPixmap::fromImage(qimg.rgbSwapped()));
-        graphics_scene->addItem(item);
-
-    }
-
-
-
 
     // install event filter
     graphics_scene->installEventFilter(this);
@@ -61,6 +45,21 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
 
 
+    loadNextFrame();
+
+
+}
+
+bool MainWindow::loadNextFrame() {
+    Mat frame;
+    video >> frame;
+    if (!frame.empty())
+    {
+        QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+        item->setPixmap(QPixmap::fromImage(qimg.rgbSwapped()));
+        return true;
+    }
+    return false;
 }
 
 // https://stackoverflow.com/questions/35039946/get-mouse-position-in-child-qgraphicsscene

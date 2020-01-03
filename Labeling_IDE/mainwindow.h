@@ -6,7 +6,8 @@
 #include <QGraphicsView>
 #include <QGraphicsItem>
 #include <QGraphicsSceneMouseEvent>
-
+#include <opencv2/opencv.hpp>
+#include <QPushButton>
 
 
 namespace Ui {
@@ -24,7 +25,10 @@ public:
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *graphics_scene; // Membervariable
+
     // Button zum speichern
+    //QPushButton nextFrameButton;
+
     // QPointF positions für rechts / linksklick hier erstellen
 
     bool eventFilter(QObject *target, QEvent *event);
@@ -35,7 +39,12 @@ private:
     QGraphicsEllipseItem * right_ellipse;
     QPen right_ellipse_pen;
 
-    QPixmap pixmap;
+    bool loadNextFrame();
+
+    QGraphicsPixmapItem * item;
+
+    cv::VideoCapture video;
+
 };
 
 #endif // MAINWINDOW_H
