@@ -22,6 +22,11 @@ public:
     explicit MainWindow(QWidget *parent = 0); // Konstruktor, hat nie Rückgabewert
     ~MainWindow(); // Destruktor
 
+// function is called by emitted signal by PushButton "nextFrameButton"
+public slots:
+    bool loadNextFrame();
+    bool loadPreviousFrame();
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene *graphics_scene; // Membervariable
@@ -39,11 +44,11 @@ private:
     QGraphicsEllipseItem * right_ellipse;
     QPen right_ellipse_pen;
 
-    bool loadNextFrame();
-
     QGraphicsPixmapItem * item;
 
     cv::VideoCapture video;
+
+    double current_framenr;
 
 };
 

@@ -50,6 +50,19 @@
      <string>Next Frame</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="prevFrameButton">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>50</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Previous Frame</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -70,8 +83,56 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>nextFrameButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadNextFrame()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>435</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>166</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>prevFrameButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadPreviousFrame()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>430</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>311</x>
+     <y>166</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>loadNextFrame()</slot>
+  <slot>loadPreviousFrame()</slot>
+ </slots>
 </ui>

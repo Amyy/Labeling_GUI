@@ -12,7 +12,8 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     ui(new Ui::MainWindow), // "ui = new Ui::MainWindow"
     left_ellipse(NULL),
     right_ellipse(NULL),
-    item(NULL)
+    item(NULL),
+    current_framenr(0)
 
 {
     ui->setupUi(this);
@@ -44,7 +45,6 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
     ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
 
-
     loadNextFrame();
 
 
@@ -52,6 +52,8 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
 bool MainWindow::loadNextFrame() {
     Mat frame;
+    current_framenr = video.get(CAP_PROP_POS_FRAMES);
+
     video >> frame;
     if (!frame.empty())
     {
@@ -60,6 +62,11 @@ bool MainWindow::loadNextFrame() {
         return true;
     }
     return false;
+}
+
+bool MainWindow::loadPreviousFrame() {
+    video.set(CAP_PROP_POS_FRAMES, current_framenr-1); // current_framenr == -1 doesn't matter lol
+    return loadNextFrame();
 }
 
 // https://stackoverflow.com/questions/35039946/get-mouse-position-in-child-qgraphicsscene
