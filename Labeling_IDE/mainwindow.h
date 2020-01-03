@@ -39,12 +39,16 @@ public slots:
     void loadLastFrame();
 
 private:
+    void readCSV(std::string const &filename); // filename: reference to constant string
+    bool eventFilter(QObject *target, QEvent *event);
+    void setLeftInstrumentPos(int x, int y);
+    void setRightInstrumentPos(int x, int y);
+
     Ui::MainWindow *ui;
     QGraphicsScene *graphics_scene; // Membervariable
 
     // QPointF positions für rechts / linksklick hier erstellen
 
-    bool eventFilter(QObject *target, QEvent *event);
 
     QGraphicsEllipseItem * left_ellipse;
     QPen left_ellipse_pen;
@@ -55,11 +59,9 @@ private:
     QGraphicsPixmapItem * item;
 
     cv::VideoCapture video;
-
     int current_framenr;
     int num_frames;
 
-    void readCSV(std::string const &filename); // filename: reference to constant string
     std::vector<InstrumentPair> instrumentPairs; // besseres Array
 };
 

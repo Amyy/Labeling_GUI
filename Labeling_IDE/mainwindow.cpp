@@ -69,6 +69,10 @@ void MainWindow::loadNextFrame() {
     {
         QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
         item->setPixmap(QPixmap::fromImage(qimg.rgbSwapped()));
+
+        InstrumentPair const &pair = instrumentPairs[current_framenr]; //InstrumentPair refers to element in vector
+        setLeftInstrumentPos(pair.xLeft, pair.yLeft);
+        setRightInstrumentPos(pair.xRight, pair.yRight);
     }
 }
 
@@ -97,35 +101,36 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
 
         // Right Mousebutton was clicked:
         if(mouse_event->button() == Qt::RightButton) {
-
-
             const QPointF position = mouse_event->scenePos();
-            std::cout << "Right Mousebutton:" << position.x() << "," << position.y() << std::endl;
-
-            if(left_ellipse != NULL) {
-                graphics_scene->removeItem(left_ellipse);
-            }
-
-            //Draw circle on clicked position:
-            left_ellipse = graphics_scene->addEllipse(position.x() - 5, position.y() - 5, 10, 10, left_ellipse_pen);
+            // std::cout << "Right Mousebutton:" << position.x() << "," << position.y() << std::endl;
+            setRightInstrumentPos(position.x(), position.y());
         }
 
         //Left Mousebutton was clicked:
         if(mouse_event->button() == Qt::LeftButton) {
-
-            QPointF const pos_right_click = mouse_event->scenePos();
-            std::cout << "Left Mousebutton:" << pos_right_click.x() << "," << pos_right_click.y() << std::endl;
-
-            if(right_ellipse != NULL) {
-                graphics_scene->removeItem(right_ellipse);
-            }
-
-            // Draw circle on left-clicked position
-            right_ellipse = graphics_scene->addEllipse(pos_right_click.x() - 5, pos_right_click.y() - 5, 10, 10, right_ellipse_pen);
+            QPointF const position = mouse_event->scenePos();
+            // std::cout << "Left Mousebutton:" << position.x() << "," << position.y() << std::endl;
+            setLeftInstrumentPos(position.x(), position.y());
         }
     }
 
     return QMainWindow::eventFilter(target, event);
+}
+
+void MainWindow::setLeftInstrumentPos(int x, int y) {
+    if(left_ellipse != NULL) {
+        graphics_scene->removeItem(left_ellipse);
+    }
+
+    left_ellipse = graphics_scene->addEllipse(x - 5, y - 5, 10, 10, left_ellipse_pen);
+}
+
+void MainWindow::setRightInstrumentPos(int x, int y) {
+    if(right_ellipse != NULL) {
+        graphics_scene->removeItem(right_ellipse);
+    }
+
+    right_ellipse = graphics_scene->addEllipse(x - 5, y - 5, 10, 10, right_ellipse_pen);
 }
 
 void MainWindow::readCSV(std::string const &filename) {
