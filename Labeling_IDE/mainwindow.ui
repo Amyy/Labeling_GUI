@@ -24,7 +24,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="saveCSVButton">
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -220,6 +220,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>saveCSVButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>saveCSV()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>570</x>
+     <y>70</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>331</x>
+     <y>222</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>loadNextFrame()</slot>
@@ -227,5 +243,6 @@
   <slot>setFrame(int)</slot>
   <slot>loadFirstFrame()</slot>
   <slot>loadLastFrame()</slot>
+  <slot>saveCSV()</slot>
  </slots>
 </ui>
