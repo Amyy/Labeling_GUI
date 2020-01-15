@@ -5,6 +5,9 @@
 #include <fstream>
 #include <sstream>
 #include <QGraphicsSceneMouseEvent>
+#include <QDesktopServices>
+#include <QDataStream>
+#include <QFileDialog>
 
 using namespace cv;
 
@@ -23,14 +26,16 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
     ui->setupUi(this);
 
+    std::cout << CV_VERSION << std::endl;
+
     graphics_scene = new QGraphicsScene(this);
     pixmap_item = new QGraphicsPixmapItem();
     graphics_scene->addItem(pixmap_item);
 
     // install event filter
     graphics_scene->installEventFilter(this);
-    // install event filter for button
-    // ...
+    // ToDo install event filter/signal for save button
+
 
     ui->graphicsView->setScene(graphics_scene); // graphicsView is QGraphicsView widget
 
@@ -173,11 +178,32 @@ void MainWindow::readCSV(std::string const &filename) {
     }
 }
 
-void MainWindow::saveCSV(std::string const &filename) {
+// https://doc.qt.io/qt-5/qtwidgets-tutorials-addressbook-part6-example.html
+void MainWindow::saveCSV() {
 
-    std::ofstream file(filename, std::ios::trunc); // open new file with filename, overwrites old file! ("truncate")
+    QString csv_file_name = QFileDialog::getSaveFileName(this, "Save CSV", "", "CSV (*.csv)");
 
-    for(auto const &pair : instrumentPairs){ // auto find type of pair, iterate over every element in instrumentPairs
-        file << pair.xLeft << ";" << pair.yLeft << ";" << pair.xRight << ";" << pair.yRight << "\n";
-    }
+    if (csv_file_name.isEmpty())
+           return;
+       else {
+           QFile file(csv_file_name);
+           if (!file.open(QIODevice::WriteOnly)) {
+               QMessageBox::information(this, tr("Unable to open file"),
+                   file.errorString());
+               return;
+           }
+       QDataStream out(&file);
+       for(auto const &pair : instrumentPairs){ // auto find type of pair, iterate over every element in instrumentPairs
+           out << pair.xLeft << ";" << pair.yLeft << ";" << pair.xRight << ";" << pair.yRight << "\n";
+       }
+     }
 }
+
+//void MainWindow::saveCSV(std::string const &filename) {
+
+//    std::ofstream file(filename, std::ios::trunc); // open new file with filename, overwrites old file! ("truncate")
+
+//    for(auto const &pair : instrumentPairs){ // auto find type of pair, iterate over every element in instrumentPairs
+//        file << pair.xLeft << ";" << pair.yLeft << ";" << pair.xRight << ";" << pair.yRight << "\n";
+//    }
+//}

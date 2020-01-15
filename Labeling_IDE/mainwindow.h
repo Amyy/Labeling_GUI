@@ -35,17 +35,20 @@ public slots:
     void loadPreviousFrame();
     void loadFirstFrame();
     void loadLastFrame();
+    void saveCSV();
+
 
 private:
     void loadVideo(std::string const &filename);
     void readCSV(std::string const &filename); // filename: reference to constant string
-    void saveCSV(std::string const &filename);
     bool eventFilter(QObject *target, QEvent *event);
     void setLeftInstrumentPos(int x, int y);
     void setRightInstrumentPos(int x, int y);
 
+    //QString video_filename;
+
     Ui::MainWindow *ui;
-    QGraphicsScene *graphics_scene; // Membervariable
+    QGraphicsScene *graphics_scene;
 
     QPen left_ellipse_pen;
     QPen right_ellipse_pen;
