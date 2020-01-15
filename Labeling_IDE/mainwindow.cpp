@@ -26,8 +26,6 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
     ui->setupUi(this);
 
-    std::cout << CV_VERSION << std::endl;
-
     graphics_scene = new QGraphicsScene(this);
     pixmap_item = new QGraphicsPixmapItem();
     graphics_scene->addItem(pixmap_item);
@@ -181,7 +179,7 @@ void MainWindow::readCSV(std::string const &filename) {
 // https://doc.qt.io/qt-5/qtwidgets-tutorials-addressbook-part6-example.html
 void MainWindow::saveCSV() {
 
-    QString csv_file_name = QFileDialog::getSaveFileName(this, "Save CSV", "", "CSV (*.csv)");
+    QString csv_file_name = QFileDialog::getSaveFileName(this, "Save CSV", "", "CSV (*.csv);;All Files (*)");
 
     if (csv_file_name.isEmpty())
            return;
@@ -194,7 +192,9 @@ void MainWindow::saveCSV() {
            }
        QDataStream out(&file);
        for(auto const &pair : instrumentPairs){ // auto find type of pair, iterate over every element in instrumentPairs
+           std::cout << pair.xLeft << std::endl;
            out << pair.xLeft << ";" << pair.yLeft << ";" << pair.xRight << ";" << pair.yRight << "\n";
+
        }
      }
 }
