@@ -8,6 +8,7 @@
 #include <QDesktopServices>
 #include <QTextStream>
 #include <QFileDialog>
+#include <QDebug>
 
 using namespace cv;
 
@@ -39,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
 
 
     loadVideo("/home/amelie/Uni/Arbeit/PegTransfer.avi");
-    readCSV("/home/amelie/Uni/Arbeit/positions.csv");
+    readCSV();
 
     loadNextFrame();
 }
@@ -154,32 +155,78 @@ void MainWindow::setRightInstrumentPos(int x, int y) {
     }
 }
 
-void MainWindow::readCSV(std::string const &filename) {
-    std::ifstream file(filename);
+void MainWindow::readCSV() {
+    QString read_csv_file = QFileDialog::getOpenFileName(this,
+            "Open Coordinates File", "/home/amelie/Uni/Arbeit/",
+            "CSV File (*.csv);;All Files (*)");
 
-    instrumentPairs.clear(); // delete content of vector
+    if (read_csv_file.isEmpty())
+        return;
+    else {
+        QFile file(read_csv_file);
+        if (!file.open(QIODevice::ReadOnly)) {
+                    QMessageBox::information(this, tr("Unable to open file"),
+                        file.errorString());
+                    return;
+        }
 
-    std::string line;
-    while(std::getline(file, line)) { // get line out of file -> write in variable line
-        InstrumentPair pair;
+        instrumentPairs.clear(); // delete content of vector
 
-        std::stringstream ss(line); // fill stringstream with content of line
-        ss >> pair.xLeft; // read line until non integer character (== ";") because xLeft == int
-        ss.ignore(1); // ignore next single/one character
-        ss >> pair.yLeft;
-        ss.ignore(1);
-        ss >> pair.xRight;
-        ss.ignore(1);
-        ss >> pair.yRight;
+        QTextStream in(&file);
+        while(!in.atEnd()) {
+            InstrumentPair pair;
 
-        instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
+            QString line = in.readLine();
+
+            QStringList coordinates_instrument = line.split(";");
+
+            pair.xLeft = coordinates_instrument[0].toInt();
+            pair.yLeft = coordinates_instrument[1].toInt();
+            pair.xRight = coordinates_instrument[2].toInt();
+            pair.yRight = coordinates_instrument[3].toInt();
+
+            instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
+        }
+        file.close();
     }
 }
+
+//void MainWindow::readCSV(std::string const &filename) {
+//    std::ifstream file(filename);
+
+//    instrumentPairs.clear(); // delete content of vector
+
+//    std::string line;
+//    while(std::getline(file, line)) { // get line out of file -> write in variable line
+//        InstrumentPair pair;
+
+//        std::stringstream ss(line); // fill stringstream with content of line
+//        ss >> pair.xLeft; // read line until non integer character (== ";") because xLeft == int
+//        ss.ignore(1); // ignore next single/one character
+//        ss >> pair.yLeft;
+//        ss.ignore(1);
+//        ss >> pair.xRight;
+//        ss.ignore(1);
+//        ss >> pair.yRight;
+
+//        instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
+//    }
+//}
 
 // https://doc.qt.io/qt-5/qtwidgets-tutorials-addressbook-part6-example.html
 void MainWindow::saveCSV() {
 
-    QString csv_file_name = QFileDialog::getSaveFileName(this, "Save CSV", "/home/amelie/Uni/Arbeit/", "CSV (*.csv);;All Files (*)");
+    QString csv_file_name = QFileDialog::getSaveFileName(this, "Save CSV", "/home/amelie/Uni/Arbeit/", "CSV (*.csv)");
+
+    // https://doc.qt.io/qt-5/qfiledialog.html
+//    QFileDialog dialog(this);
+//    dialog.setFileMode(QFileDialog::AnyFile);
+//    dialog.setNameFilter("CSV File (*.csv)");
+//    dialog.setDefaultSuffix("csv");
+//    QString csv_file_name;
+//    if (dialog.exec())
+//        csv_file_name = dialog.selectFile();
+
 
     if (csv_file_name.isEmpty())
            return;

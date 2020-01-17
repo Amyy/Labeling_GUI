@@ -36,11 +36,11 @@ public slots:
     void loadFirstFrame();
     void loadLastFrame();
     void saveCSV();
+    void readCSV();
 
 
 private:
     void loadVideo(std::string const &filename);
-    void readCSV(std::string const &filename); // filename: reference to constant string
     bool eventFilter(QObject *target, QEvent *event);
     void setLeftInstrumentPos(int x, int y);
     void setRightInstrumentPos(int x, int y);
