@@ -165,6 +165,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             InstrumentPair &pair = instrumentPairs[current_framenr];
             pair.xRight = position.x();
             pair.yRight = position.y();
+            pair.annotated = true;
             setRightInstrumentPos(position.x(), position.y());
         }
 
@@ -175,6 +176,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event) {
             InstrumentPair &pair = instrumentPairs[current_framenr];
             pair.xLeft = position.x();
             pair.yLeft = position.y();
+            pair.annotated = true;
             setLeftInstrumentPos(position.x(), position.y());
         }
     }
@@ -205,17 +207,17 @@ void MainWindow::setRightInstrumentPos(int x, int y) {
 
 void MainWindow::readCSV() {
     QString read_csv_file = QFileDialog::getOpenFileName(this,
-            "Open Coordinates File", "/home/amelie/Uni/Arbeit/",
-            "CSV File (*.csv)");
+                                                         "Open Coordinates File", "/home/amelie/Uni/Arbeit/",
+                                                         "CSV File (*.csv)");
 
     if (read_csv_file.isEmpty())
         return;
     else {
         QFile file(read_csv_file);
         if (!file.open(QIODevice::ReadOnly)) {
-                    QMessageBox::information(this, "Unable to open file",
-                        file.errorString());
-                    return;
+            QMessageBox::information(this, "Unable to open file",
+                                     file.errorString());
+            return;
         }
 
         instrumentPairs.clear(); // delete content of vector
@@ -232,6 +234,9 @@ void MainWindow::readCSV() {
             pair.yLeft = coordinates_instrument[1].toInt();
             pair.xRight = coordinates_instrument[2].toInt();
             pair.yRight = coordinates_instrument[3].toInt();
+            if(coordinates_instrument.length() > 4) {
+                pair.annotated = coordinates_instrument[4] != "0";
+            }
 
             instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
         }
@@ -239,58 +244,36 @@ void MainWindow::readCSV() {
     }
 }
 
-//void MainWindow::readCSV(std::string const &filename) {
-//    std::ifstream file(filename);
-
-//    instrumentPairs.clear(); // delete content of vector
-
-//    std::string line;
-//    while(std::getline(file, line)) { // get line out of file -> write in variable line
-//        InstrumentPair pair;
-
-//        std::stringstream ss(line); // fill stringstream with content of line
-//        ss >> pair.xLeft; // read line until non integer character (== ";") because xLeft == int
-//        ss.ignore(1); // ignore next single/one character
-//        ss >> pair.yLeft;
-//        ss.ignore(1);
-//        ss >> pair.xRight;
-//        ss.ignore(1);
-//        ss >> pair.yRight;
-
-//        instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
-//    }
-//}
-
 // https://doc.qt.io/qt-5/qtwidgets-tutorials-addressbook-part6-example.html
 void MainWindow::saveCSV() {
 
     QString csv_file_name = QFileDialog::getSaveFileName(this, "Save CSV", "/home/amelie/Uni/Arbeit/", "CSV (*.csv)");
 
     // https://doc.qt.io/qt-5/qfiledialog.html
-//    QFileDialog dialog(this);
-//    dialog.setFileMode(QFileDialog::AnyFile);
-//    dialog.setNameFilter("CSV File (*.csv)");
-//    dialog.setDefaultSuffix("csv");
-//    QString csv_file_name;
-//    if (dialog.exec())
-//        csv_file_name = dialog.selectFile();
+    //    QFileDialog dialog(this);
+    //    dialog.setFileMode(QFileDialog::AnyFile);
+    //    dialog.setNameFilter("CSV File (*.csv)");
+    //    dialog.setDefaultSuffix("csv");
+    //    QString csv_file_name;
+    //    if (dialog.exec())
+    //        csv_file_name = dialog.selectFile();
 
 
     if (csv_file_name.isEmpty())
-           return;
-       else {
-           QFile file(csv_file_name);
-           if (!file.open(QIODevice::WriteOnly)) {
-               QMessageBox::information(this, tr("Unable to open file"),
-                   file.errorString());
-               return;
-           }
-       QTextStream out(&file);
-       for(auto const &pair : instrumentPairs){ // auto find type of pair, iterate over every element in instrumentPairs
-           out << pair.xLeft << ";" << pair.yLeft << ";" << pair.xRight << ";" << pair.yRight << "\n";
+        return;
+    else {
+        QFile file(csv_file_name);
+        if (!file.open(QIODevice::WriteOnly)) {
+            QMessageBox::information(this, tr("Unable to open file"),
+                                     file.errorString());
+            return;
+        }
+        QTextStream out(&file);
+        for(auto const &pair : instrumentPairs){ // auto find type of pair, iterate over every element in instrumentPairs
+            out << pair.xLeft << ";" << pair.yLeft << ";" << pair.xRight << ";" << pair.yRight << ";" << pair.annotated << "\n";
 
-       }
-     }
+        }
+    }
 }
 
 //void MainWindow::saveCSV(std::string const &filename) {

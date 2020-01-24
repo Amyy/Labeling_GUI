@@ -18,6 +18,8 @@ struct InstrumentPair {
     int yLeft;
     int xRight;
     int yRight;
+
+    bool annotated{false};
 };
 
 class MainWindow : public QMainWindow
