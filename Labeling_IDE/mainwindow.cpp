@@ -247,16 +247,19 @@ void MainWindow::readCSV() {
 // https://doc.qt.io/qt-5/qtwidgets-tutorials-addressbook-part6-example.html
 void MainWindow::saveCSV() {
 
-    QString csv_file_name = QFileDialog::getSaveFileName(this, "Save CSV", "/home/amelie/Uni/Arbeit/", "CSV (*.csv)");
-
     // https://doc.qt.io/qt-5/qfiledialog.html
-    //    QFileDialog dialog(this);
-    //    dialog.setFileMode(QFileDialog::AnyFile);
-    //    dialog.setNameFilter("CSV File (*.csv)");
-    //    dialog.setDefaultSuffix("csv");
-    //    QString csv_file_name;
-    //    if (dialog.exec())
-    //        csv_file_name = dialog.selectFile();
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilter("CSV File (*.csv)");
+    dialog.setDefaultSuffix("csv");
+    QString csv_file_name;
+    QStringList filenames;
+    if (dialog.exec())
+        filenames = dialog.selectedFiles();
+    if (filenames.size() != 1) {
+        return;
+    }
+    csv_file_name = filenames[0];
 
 
     if (csv_file_name.isEmpty())
