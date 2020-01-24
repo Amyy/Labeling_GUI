@@ -19,8 +19,9 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     left_ellipse(nullptr),
     right_ellipse(nullptr),
     pixmap_item(nullptr),
-    current_framenr(0),
-    num_frames(0)
+    current_framenr(-1),
+    num_frames(0),
+    framerate(1)
 {
     left_ellipse_pen.setColor(QColor(255, 0, 0));
     right_ellipse_pen.setColor(QColor(0, 255, 0));
@@ -42,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) : // Initialisierungsliste
     loadVideo("/home/amelie/Uni/Arbeit/PegTransfer.avi");
     readCSV();
 
-    loadNextFrame();
+    loadFrame(0);
 }
 
 MainWindow::~MainWindow() // for every "new" add one "delete"
@@ -68,40 +69,87 @@ void MainWindow::loadVideo(std::string const& filename) {
     ui->frameSpinBox->setMaximum(num_frames-1); // maximum from spin box: begin count 0
 }
 
+void MainWindow::setFramerate(int _framerate) {
+    framerate = _framerate;
+    refreshButtonState();
+}
+
 void MainWindow::loadNextFrame() {
-    Mat frame;
-    current_framenr = static_cast<int>(video.get(CAP_PROP_POS_FRAMES));
-    ui->frameSpinBox->setValue(current_framenr);
+    loadFrame(current_framenr + framerate);
+}
 
-    video >> frame;
-    if (!frame.empty())
-    {
-        QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-        pixmap_item->setPixmap(QPixmap::fromImage(qimg.rgbSwapped()));
+void MainWindow::loadFrame(int framenumber) {
+    // buttons don't react if framenumber gets negative
+    if(framenumber < 0 || framenumber >= num_frames) {
+        return;
+    }
+    if(framenumber != current_framenr) { // prevent 2x/double loadNextFrame trigger
+        current_framenr = framenumber;
+        video.set(CAP_PROP_POS_FRAMES, current_framenr);
+        ui->frameSpinBox->setValue(current_framenr);
 
-        InstrumentPair const &pair = instrumentPairs[current_framenr]; //InstrumentPair refers to element in vector
-        setLeftInstrumentPos(pair.xLeft, pair.yLeft);
-        setRightInstrumentPos(pair.xRight, pair.yRight);
+        Mat frame;
+        video >> frame;
+        if (!frame.empty())
+        {
+            QImage qimg(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+            pixmap_item->setPixmap(QPixmap::fromImage(qimg.rgbSwapped()));
+
+            InstrumentPair const &pair = instrumentPairs[current_framenr]; //InstrumentPair refers to element in vector
+            setLeftInstrumentPos(pair.xLeft, pair.yLeft);
+            setRightInstrumentPos(pair.xRight, pair.yRight);
+        }
+        refreshButtonState();
     }
 }
 
-void MainWindow::setFrame(int framenumber) {
-    if(framenumber != current_framenr) { // prevent 2x/double loadNextFrame trigger
-        video.set(CAP_PROP_POS_FRAMES, framenumber);
-        loadNextFrame();
+void MainWindow::refreshButtonState() {
+
+    // Previous Button
+    int framerate = ui->frameRateSpinBox->value();
+    if(current_framenr - framerate < 0) {
+        ui->prevFrameButton->setEnabled(false);
+    }
+    else {
+        ui->prevFrameButton->setEnabled(true);
+    }
+
+    // Next Frame Button
+    if(current_framenr + framerate >= num_frames) {
+        ui->nextFrameButton->setEnabled(false);
+    }
+    else{
+        ui->nextFrameButton->setEnabled(true);
+    }
+
+    // First Frame Button
+    if(current_framenr == 0) {
+        ui->firstFrameButton->setEnabled(false);
+    }
+    else {
+        ui->firstFrameButton->setEnabled(true);
+    }
+
+    // Last Frame Button
+    if(current_framenr + 1 == num_frames) {
+        ui->lastFrameButton->setEnabled(false);
+    }
+    else{
+        ui->lastFrameButton->setEnabled(true);
     }
 }
 
 void MainWindow::loadPreviousFrame() {
-    setFrame(current_framenr-1); // current_framenr == -1 doesn't matter lol
+    int frameRate = ui->frameRateSpinBox->value();
+    loadFrame(current_framenr-frameRate);
 }
 
 void MainWindow::loadFirstFrame() {
-    setFrame(0);
+    loadFrame(0);
 }
 
 void MainWindow::loadLastFrame() {
-    setFrame(num_frames-1);
+    loadFrame(num_frames-1);
 }
 
 // https://stackoverflow.com/questions/35039946/get-mouse-position-in-child-qgraphicsscene
@@ -158,14 +206,14 @@ void MainWindow::setRightInstrumentPos(int x, int y) {
 void MainWindow::readCSV() {
     QString read_csv_file = QFileDialog::getOpenFileName(this,
             "Open Coordinates File", "/home/amelie/Uni/Arbeit/",
-            "CSV File (*.csv);;All Files (*)");
+            "CSV File (*.csv)");
 
     if (read_csv_file.isEmpty())
         return;
     else {
         QFile file(read_csv_file);
         if (!file.open(QIODevice::ReadOnly)) {
-                    QMessageBox::information(this, tr("Unable to open file"),
+                    QMessageBox::information(this, "Unable to open file",
                         file.errorString());
                     return;
         }

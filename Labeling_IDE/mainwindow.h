@@ -28,15 +28,16 @@ public:
     explicit MainWindow(QWidget *parent = 0); // Konstruktor, hat nie Rückgabewert
     ~MainWindow(); // Destruktor
 
-// function is called by emitted signal by PushButton "nextFrameButton"
+// function is called by emitted signal by Buttons
 public slots:
-    void setFrame(int framenumber);
+    void loadFrame(int framenumber); // gets called by frameSpinBox
     void loadNextFrame();
     void loadPreviousFrame();
     void loadFirstFrame();
     void loadLastFrame();
     void saveCSV();
     void readCSV();
+    void setFramerate(int framerate);
 
 
 private:
@@ -44,8 +45,7 @@ private:
     bool eventFilter(QObject *target, QEvent *event);
     void setLeftInstrumentPos(int x, int y);
     void setRightInstrumentPos(int x, int y);
-
-    //QString video_filename;
+    void refreshButtonState();
 
     Ui::MainWindow *ui;
     QGraphicsScene *graphics_scene;
@@ -61,8 +61,9 @@ private:
     cv::VideoCapture video;
     int current_framenr;
     int num_frames;
+    int framerate;
 
-    std::vector<InstrumentPair> instrumentPairs; // besseres Array
+    std::vector<InstrumentPair> instrumentPairs;
 };
 
 #endif // MAINWINDOW_H
