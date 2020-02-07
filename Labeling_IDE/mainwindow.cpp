@@ -224,21 +224,21 @@ void MainWindow::readCSV() {
 
         QTextStream in(&file);
         while(!in.atEnd()) {
-            InstrumentPair pair;
-
             QString line = in.readLine();
+            if(line.length() > 0) {
+                QStringList coordinates_instrument = line.split(";");
 
-            QStringList coordinates_instrument = line.split(";");
+                InstrumentPair pair;
+                pair.xLeft = coordinates_instrument[0].toInt();
+                pair.yLeft = coordinates_instrument[1].toInt();
+                pair.xRight = coordinates_instrument[2].toInt();
+                pair.yRight = coordinates_instrument[3].toInt();
+                if(coordinates_instrument.length() > 4) {
+                    pair.annotated = coordinates_instrument[4] != "0";
+                }
 
-            pair.xLeft = coordinates_instrument[0].toInt();
-            pair.yLeft = coordinates_instrument[1].toInt();
-            pair.xRight = coordinates_instrument[2].toInt();
-            pair.yRight = coordinates_instrument[3].toInt();
-            if(coordinates_instrument.length() > 4) {
-                pair.annotated = coordinates_instrument[4] != "0";
+                instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
             }
-
-            instrumentPairs.push_back(pair); // move pair element to end of vector ("append")
         }
         file.close();
     }
